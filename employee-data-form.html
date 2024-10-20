@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بيانات موظفي وزارة الصحة_ مملكة البحرين</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            direction: rtl;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 1.2em;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 1em;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ccc;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .popup.active {
+            display: block;
+        }
+
+        .popup h3 {
+            margin: 0 0 10px 0;
+        }
+
+        .popup button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>نموذج إدخال بيانات الموظفين</h2>
+    
+    <form id="employeeForm">
+        <label for="name">الاسم الكامل:</label>
+        <input type="text" id="name" placeholder="أدخل الاسم الكامل" required>
+
+        <label for="personalPhone">رقم الهاتف الشخصي:</label>
+        <input type="tel" id="personalPhone" placeholder="أدخل رقم الهاتف الشخصي" required>
+
+        <label for="officePhone">رقم هاتف المكتب:</label>
+        <input type="tel" id="officePhone" placeholder="أدخل رقم هاتف المكتب" required>
+
+        <label for="jobTitle">المسمى الوظيفي:</label>
+        <input type="text" id="jobTitle" placeholder="أدخل المسمى الوظيفي" required>
+
+        <label for="department">القسم/الإدارة:</label>
+        <input type="text" id="department" placeholder="أدخل القسم أو الإدارة" required>
+
+        <label for="floor">الطابق (اختر من 1 إلى 18 أو مركز خدمة العملاء):</label>
+        <select id="floor" required>
+            <option value="">اختر الطابق</option>
+            <!-- الخيارات من 1 إلى 18 -->
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <!-- خيار مركز خدمة العملاء -->
+            <option value="مركز خدمة العملاء">مركز خدمة العملاء</option>
+        </select>
+
+        <button type="button" onclick="submitForm()">إرسال</button>
+    </form>
+</div>
+
+<div class="popup" id="successPopup">
+    <h3>تم إدخال البيانات بنجاح!</h3>
+    <button onclick="closePopup()">موافق</button>
+</div>
+
+<script>
+    let userIP = '';
+
+    // الحصول على عنوان الـ IP
+    fetch('https://api.ipify.org?format=json')
+    .then(response => response.json())
+    .then(data => {
+        userIP = data.ip;
+    })
+    .catch(error => console.error('Error fetching IP:', error));
+
+    function submitForm() {
+        const name = document.getElementById('name').value;
+        const personalPhone = document.getElementById('personalPhone').value;
+        const officePhone = document.getElementById('officePhone').value;
+        const jobTitle = document.getElementById('jobTitle').value;
+        const department = document.getElementById('department').value;
+        const floor = document.getElementById('floor').value;
+
+        if (!name || !personalPhone || !officePhone || !jobTitle || !department || !floor) {
+            alert('يرجى تعبئة جميع الحقول!');
+            return;
+        }
+
+        // جمع بيانات المتصفح والجهاز
+        const deviceInfo = navigator.userAgent;
+
+        // التحقق من التكرار
+        checkDuplicateEntry(name, personalPhone, userIP)
+            .then(isDuplicate => {
+                if (isDuplicate) {
+                    alert("تم إدخال هذه البيانات سابقًا من هذا الجهاز.");
+                } else {
+                    // إرسال البيانات إلى السيرفر أو Google Sheets
+                    fetch("YOUR_WEB_APP_URL", {
+                        method: "POST",
+                        body: new URLSearchParams({
+                            name: name,
+                            personalPhone: personalPhone,
+                            officePhone: officePhone,
+                            jobTitle: jobTitle,
+                            department: department,
+                            floor: floor,
+                            deviceInfo: deviceInfo,
+                            ip: userIP
+                        })
+                    }).then(response => {
+                        if (response.ok) {
+                            showPopup();
+                            document.getElementById('employeeForm').reset();
+                        } else {
+                            alert('حدث خطأ أثناء الإرسال.');
+                        }
+                    });
+                }
+            });
+    }
+
+    function checkDuplicateEntry(name, personalPhone, ip) {
+        // يمكنك هنا تنفيذ طلب إلى قاعدة البيانات للتحقق من البيانات المتكررة
+        return fetch("YOUR_DUPLICATE_CHECK_API_URL", {
+            method: "POST",
+            body: new URLSearchParams({
+                name: name,
+                personalPhone: personalPhone,
+                ip: ip
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            return data.isDuplicate; // إرجاع true إذا كانت البيانات متكررة
+        })
+        .catch(error => {
+            console.error("Error checking duplicate:", error);
+            return false;
+        });
+    }
+
+    function showPopup() {
+        document.getElementById('successPopup').classList.add('active');
+    }
+
+    function closePopup() {
+        document.getElementById('successPopup').classList.remove('active');
+    }
+</script>
+
+</body>
+</html>
