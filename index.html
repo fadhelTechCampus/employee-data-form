@@ -186,7 +186,7 @@
                     alert("تم إدخال هذه البيانات سابقًا من هذا الجهاز.");
                 } else {
                     // إرسال البيانات إلى السيرفر أو Google Sheets
-                    fetch("YOUR_WEB_APP_URL", {
+                    fetch("https://fadheltechcampus.github.io/employee-data-form/URL", {
                         method: "POST",
                         body: new URLSearchParams({
                             name: name,
@@ -212,7 +212,7 @@
 
     function checkDuplicateEntry(name, personalPhone, ip) {
         // يمكنك هنا تنفيذ طلب إلى قاعدة البيانات للتحقق من البيانات المتكررة
-        return fetch("YOUR_DUPLICATE_CHECK_API_URL", {
+        return fetch("https://fadheltechcampus.github.io/employee-data-form/", {
             method: "POST",
             body: new URLSearchParams({
                 name: name,
